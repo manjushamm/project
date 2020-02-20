@@ -1,7 +1,3 @@
-
-# Keras implementation of the paper:
-# 3D MRI Brain Tumor Segmentation Using Autoencoder Regularizatio
-
 import keras.backend as K
 from keras.losses import mse
 from keras.layers import Conv3D, Activation, Add, UpSampling3D, Lambda, Dense
@@ -117,28 +113,28 @@ def loss_gt(e=1e-8):
     other than the true and predicted labels, this function acts as a wrapper
     that allows us to implement the custom loss used in the paper. This function
     only calculates - L<dice> term of the following equation. (i.e. GT Decoder part loss)
-
-    L = - L<dice> + weight_L2 * L<L2> + weight_KL * L<KL>
-
+    
+    L = - L<dice> + weight_L2 ∗ L<L2> + weight_KL ∗ L<KL>
+    
     Parameters
     ----------
     `e`: Float, optional
         A small epsilon term to add in the denominator to avoid dividing by
         zero and possible gradient explosion.
-
+        
     Returns
     -------
     loss_gt_(y_true, y_pred): A custom keras loss function
         This function takes as input the predicted and ground labels, uses them
         to calculate the dice loss.
-
+        
     """
     def loss_gt_(y_true, y_pred):
         intersection = K.sum(K.abs(y_true * y_pred), axis=[-3,-2,-1])
         dn = K.sum(K.square(y_true) + K.square(y_pred), axis=[-3,-2,-1]) + e
-
+        
         return - K.mean(2 * intersection / dn, axis=[0,1])
-
+    
     return loss_gt_
 
 def loss_VAE(input_shape, z_mean, z_var, weight_L2=0.1, weight_KL=0.1):
@@ -149,9 +145,9 @@ def loss_VAE(input_shape, z_mean, z_var, weight_L2=0.1, weight_KL=0.1):
     other than the true and predicted labels, this function acts as a wrapper
     that allows us to implement the custom loss used in the paper. This function
     calculates the following equation, except for -L<dice> term. (i.e. VAE decoder part loss)
-
-    L = - L<dice> + weight_L2 * L<L2> + weight_KL * L<KL>
-
+    
+    L = - L<dice> + weight_L2 ∗ L<L2> + weight_KL ∗ L<KL>
+    
     Parameters
     ----------
      `input_shape`: A 4-tuple, required
@@ -170,18 +166,18 @@ def loss_VAE(input_shape, z_mean, z_var, weight_L2=0.1, weight_KL=0.1):
     `weight_KL`: A real number, optional
         The weight to be given to the KL loss term in the loss function. Adjust to get best
         results for your task. Defaults to 0.1.
-
+        
     Returns
     -------
     loss_VAE_(y_true, y_pred): A custom keras loss function
         This function takes as input the predicted and ground labels, uses them
         to calculate the L2 and KL loss.
-
+        
     """
     def loss_VAE_(y_true, y_pred):
         c, H, W, D = input_shape
         n = c * H * W * D
-
+        
         loss_L2 = K.mean(K.square(y_true - y_pred), axis=(1, 2, 3, 4)) # original axis value is (1,2,3,4).
 
         loss_KL = (1 / n) * K.sum(
@@ -444,7 +440,7 @@ def build_model(input_shape=(4, 160, 192, 128), output_channels=3, weight_L2=0.1
         kernel_size=(1, 1, 1),
         strides=1,
         data_format='channels_first',
-        name='Dec_VAE_Output')(x)
+        name='Dec_VAE_Output')(x) 
 
     # Build and Compile the model
     out = out_GT
@@ -454,4 +450,5 @@ def build_model(input_shape=(4, 160, 192, 128), output_channels=3, weight_L2=0.1
         [loss_gt(dice_e), loss_VAE(input_shape, z_mean, z_var, weight_L2=weight_L2, weight_KL=weight_KL)],
         metrics=[dice_coefficient]
     )
+
     return model

@@ -1,8 +1,7 @@
 
 # Keras implementation of the paper:
-# 3D MRI Brain Tumor Segmentation Using Autoencoder Regularization
-# by Myronenko A. (https://arxiv.org/pdf/1810.11654.pdf)
-# Author of this code: Suyog Jadhav (https://github.com/IAmSUyogJadhav)
+# 3D MRI Brain Tumor Segmentation Using Autoencoder Regularizatio
+
 import keras.backend as K
 from keras.losses import mse
 from keras.layers import Conv3D, Activation, Add, UpSampling3D, Lambda, Dense
